@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "au26HPUqu/0W3YDd1mXmRiSzRZJ3BNVq2TeHGTL6nn0BCbckTdO/ngL07Vty+d0930uBecGXJ9DPLJl9Lgt20A==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\lhogan\\Desktop\\Curso Kinal 2021\\BackEnd\\prod\\WebApiKalum\\WebApiKalum.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\lhogan\\.nuget\\packages\\microsoft.extensions.apidescription.server\\3.0.0\\microsoft.extensions.apidescription.server.3.0.0.nupkg.sha512",
+    "C:\\Users\\lhogan\\.nuget\\packages\\microsoft.openapi\\1.2.3\\microsoft.openapi.1.2.3.nupkg.sha512",
+    "C:\\Users\\lhogan\\.nuget\\packages\\swashbuckle.aspnetcore\\6.2.3\\swashbuckle.aspnetcore.6.2.3.nupkg.sha512",
+    "C:\\Users\\lhogan\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.2.3\\swashbuckle.aspnetcore.swagger.6.2.3.nupkg.sha512",
+    "C:\\Users\\lhogan\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.2.3\\swashbuckle.aspnetcore.swaggergen.6.2.3.nupkg.sha512",
+    "C:\\Users\\lhogan\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\6.2.3\\swashbuckle.aspnetcore.swaggerui.6.2.3.nupkg.sha512"
+  ],
+  "logs": []
+}
