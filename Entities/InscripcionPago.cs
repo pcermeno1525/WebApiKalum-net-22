@@ -6,7 +6,7 @@ namespace WebApiKalum.Entities
         public string NoExpediente { get; set; }
         public string Anio { get; set; }
         public DateTime FechaPago { get; set; }
-        public double Monto { get; set; }
+        public decimal Monto { get; set; }
         public virtual Aspirante Aspirante { get; set; }
     }
 }
