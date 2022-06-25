@@ -50,6 +50,54 @@ namespace WebApiKalum.Controllers
             return Ok(carrera);
 
         }
+        [HttpPost]
+        public async Task<ActionResult<CarreraTecnica>> Post([FromBody] CarreraTecnica value)
+        {
+            Logger.LogDebug("Iniciando proceso de agregar una carrera técnica nueva");
+            value.CarreraId = Guid.NewGuid().ToString().ToUpper();
+            await DbContext.CarreraTecnica.AddAsync(value);
+            await DbContext.SaveChangesAsync();
+            Logger.LogInformation("Finalizando el proceso de agregar una carrera técnica");
+            return new CreatedAtRouteResult("GetCarreraTecnica",new {id = value.CarreraId}, value);
+        }
+        [HttpDelete("{id}")]        
+        public async Task<ActionResult<CarreraTecnica>> Delete(string id)
+        {
+            Logger.LogDebug("Iniciando el proceso de eliminación");
+            CarreraTecnica carreraTecnica = await DbContext.CarreraTecnica.FirstOrDefaultAsync(ct => ct.CarreraId == id);
+            if(carreraTecnica == null)
+            {
+                Logger.LogWarning($"No se encontro ninguna carrera técnica con el id {id}");
+                return NotFound();                
+            }
+            else
+            {
+                DbContext.CarreraTecnica.Remove(carreraTecnica);
+                await DbContext.SaveChangesAsync();
+                Logger.LogInformation($"Se ha eliminado correctamente la carrera tecnica con el id {id}");
+                return carreraTecnica;
+            }
+        }
+        [HttpPut("{id}")]
+
+        public async Task<ActionResult> Put(string id, [FromBody] CarreraTecnica value)
+        {
+            Logger.LogDebug($"Iniciando el proceso de actualización de la carrera técnica con el id {id}");
+            CarreraTecnica carreraTecnica = await DbContext.CarreraTecnica.FirstOrDefaultAsync(ct => ct.CarreraId == id);
+            if(carreraTecnica == null)
+            {
+                Logger.LogWarning($"No se encontro ninguna carrera técnica con el id {id}");
+                return BadRequest();                
+            }
+            else
+            {
+                carreraTecnica.Nombre = value.Nombre;
+                DbContext.Entry(carreraTecnica).State = EntityState.Modified;
+                await DbContext.SaveChangesAsync(); 
+                Logger.LogInformation("Los datos han sido actualizados correctamente");
+                return NoContent();
+            }
+        }
 
     }
 }
