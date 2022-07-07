@@ -1,11 +1,14 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.VisualBasic;
+using WebApiKalum.Helpers;
 
 namespace WebApiKalum.Entities
 {
-    public class Aspirante
+    public class Aspirante //: IValidatableObject
     {
         [Required(ErrorMessage = "El campo {0} es requerido")]
         [StringLength(12, MinimumLength = 12, ErrorMessage = "El campo número de expediente debe ser de 12 caracteres")]
+        [NoExpediente]
         public string NoExpediente { get; set; }
         [Required(ErrorMessage = "El campo {0} es requerido")]
         public string Apellidos { get; set; }
@@ -42,23 +45,24 @@ namespace WebApiKalum.Entities
 
         }
 
-        // public IEnumerable<ValidationResult> Validate(ValidateContext validationContext)
+        // public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         // {
         //     // bool expedienteValid = false;
         //     if (!string.IsNullOrEmpty(NoExpediente))
         //     {
         //         if (!NoExpediente.Contains("-"))
         //         {
-        //             yield return new ValidationResult("El número de expediente no contiene un '-' ", new string[](nameof(NoExpediente)));
+        //             yield return new ValidationResult("El número de expediente no contiene un '-' ", new string[]{nameof(NoExpediente)});
+        //         }else
+        //         { 
+        //             int guion = NoExpediente.IndexOf("-");
+        //             string exp = NoExpediente.Substring(0, guion);
+        //             string numero = NoExpediente.Substring(guion + 1, NoExpediente.Length - 4);
+        //             if (!exp.ToUpper().Equals("EXP") || !Information.IsNumeric(numero))
+        //             {
+        //                 yield return new ValidationResult("El número de expediente no contiene la nomenclatura adecuada", new string[]{nameof(NoExpediente)});
+        //             }
         //         }
-        //         int guion = NoExpediente.IndexOf("-");
-        //         string exp = NoExpediente.Substring(0, guion);
-        //         string numero = NoExpediente.Substring(guion + 1, NoExpediente.Length - 4);
-        //         if (!exp.ToUpper().Equals("EXP") || !Information.IsNumeric(numero))
-        //         {
-        //             yield return new ValidationResult("El número de expediente no contiene la nomenclatura adecuada", new string[](nameof(NoExpediente)));
-        //         }
-
         //     }
         // }
     }
