@@ -9,6 +9,8 @@ namespace WebApiKalum.Dtos
         public string Email { get; set; }
         public CarreraTecnicaCreateDTO CarreraTecnica { get; set; }
         public JornadaCreateDTO Jornada { get; set; }
-        public ExamenAdmisionDTO ExamenAdmision { get; set; }        
+        public ExamenAdmisionDTO  ExamenAdmision { get; set; }        
+        // public virtual List<InscripcionPago> InscripcionesPagos { get; set; }
+        // public virtual List<ResultadoExamenAdmision> ResultadosExamenesAdmision { get; set; }
     }
 }

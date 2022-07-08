@@ -42,7 +42,7 @@ namespace WebApiKalum.Controllers
         }
 
         [HttpGet("page/{page}")]
-        public async Task<ActionResult<IEnumerable<CarreraTecnica>>> GetPaginacion(int page)
+        public async Task<ActionResult<IEnumerable<CarreraTecnicaListDTO>>> GetPaginacion(int page)
         {
             var queryable = this.DbContext.CarreraTecnica.Include(ct => ct.Aspirantes).Include(ct => ct.Inscripciones).AsQueryable();
             var paginacion = new HttpResponsePaginacion<CarreraTecnica>(queryable,page);
@@ -50,14 +50,13 @@ namespace WebApiKalum.Controllers
             {
                 return NoContent();
             }
-            else
-            {
-                return Ok(paginacion);
-            }
+            List<CarreraTecnicaListDTO> carrera = Mapper.Map<List<CarreraTecnicaListDTO>>(paginacion.Content);
+            Logger.LogInformation("Finalizacion proceso de paginacion carreras tecnicas");
+            return Ok(carrera);
         }
 
         [HttpGet("{id}", Name = "GetCarreraTecnica")]
-        public async Task<ActionResult<CarreraTecnica>> GetCarreraTecnica(string id)
+        public async Task<ActionResult<CarreraTecnicaListDTO>> GetCarreraTecnica(string id)
         {
             Logger.LogDebug("Iniciando el proceso de busqueda con el id " + id);
             var carrera = await DbContext.CarreraTecnica.Include(c => c.Aspirantes).Include(c => c.Inscripciones).FirstOrDefaultAsync(ct => ct.CarreraId == id);
@@ -66,8 +65,9 @@ namespace WebApiKalum.Controllers
                 Logger.LogWarning("No existe la carrera técnica con el id " + id);
                 return new NoContentResult();
             }
+            CarreraTecnicaListDTO carreraTecnica = Mapper.Map<CarreraTecnicaListDTO>(carrera);
             Logger.LogInformation("Finalizando el proceso de busqueda de forma exitosa");
-            return Ok(carrera);
+            return Ok(carreraTecnica);
 
         }
         [HttpPost]
@@ -87,10 +87,22 @@ namespace WebApiKalum.Controllers
         {
             Logger.LogDebug("Iniciando el proceso de eliminación");
             CarreraTecnica carreraTecnica = await DbContext.CarreraTecnica.FirstOrDefaultAsync(ct => ct.CarreraId == id);
+            Aspirante aspirante = await DbContext.Aspirante.FirstOrDefaultAsync(a => a.CarreraId == id);
+            InversionCarreraTecnica inversion = await DbContext.InversionCarreraTecnica.FirstOrDefaultAsync(i => i.CarreraId == id); 
             if(carreraTecnica == null)
             {
                 Logger.LogWarning($"No se encontro ninguna carrera técnica con el id {id}");
                 return NotFound();                
+            }
+            else if(aspirante != null)
+            {
+                Logger.LogWarning($"No se puede eliminar la carrera tecnica con el id {id}, se encuentra asignada a uno o mas aspirantes");
+                return BadRequest();
+            }
+            else if(inversion != null)
+            {
+                Logger.LogWarning($"No se puede eliminar la carrera tecnica con el id {id}, se encuentra asignada a una o mas inversiones");
+                return BadRequest();
             }
             else
             {

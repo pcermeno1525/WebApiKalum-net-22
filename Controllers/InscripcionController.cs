@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
 using WebApiKalum.Dtos;
 using WebApiKalum.Entities;
+using WebApiKalum.Utilities;
 
 namespace WebApiKalum.Controllers
 {
@@ -17,10 +18,11 @@ namespace WebApiKalum.Controllers
         private readonly ILogger<InscripcionController> Logger;
         private readonly IMapper Mapper;
 
-        public InscripcionController(KalumDBContext _DbContext, ILogger<InscripcionController> _Logger)
+        public InscripcionController(KalumDBContext _DbContext, ILogger<InscripcionController> _Logger, IMapper _Mapper)
         {
             this.DbContext = _DbContext;
             this.Logger = _Logger;            
+            this.Mapper = _Mapper;
         }
 
         [HttpPost("Enrollments")]
@@ -78,6 +80,96 @@ namespace WebApiKalum.Controllers
                 conexion.Close();
             }
             return proceso;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<InscripcionListDTO>>> Get()
+        {
+            List<Inscripcion> inscripciones = null;
+            Logger.LogDebug("Iniciando proceso de consulta de inscripciones");
+            inscripciones = await DbContext.Inscripcion.ToListAsync();
+            if(inscripciones == null || inscripciones.Count==0)
+            {
+                Logger.LogWarning("No existen inscripciones");
+                return new NoContentResult();
+            }
+            List<InscripcionListDTO> asignaciones = Mapper.Map<List<InscripcionListDTO>>(inscripciones);
+            Logger.LogInformation("Se ejecuto la petición de forma exitosa");
+            return Ok(asignaciones);
+        }
+
+        [HttpGet("{id}", Name = "GetInscripcion")]
+        public async Task<ActionResult<InscripcionListDTO>> GetInscripcion(string id)
+        {
+            Logger.LogDebug($"Iniciando el proceso de busqueda con el id {id}");
+            var inscripcion = await DbContext.Inscripcion.FirstOrDefaultAsync(i => i.InscripcionId == id);
+            if(inscripcion == null)
+            {
+                Logger.LogWarning($"No existe inscripción con el id {id}");
+                return new NoContentResult();
+            }
+            InscripcionListDTO asignacion = Mapper.Map<InscripcionListDTO>(inscripcion);
+            Logger.LogInformation("Finalizando el proceso de busqueda de forma exitosa");
+            return Ok(asignacion);
+        }
+
+        [HttpGet("page/{page}")]
+        public async Task<ActionResult<IEnumerable<InscripcionListDTO>>> GetPaginacion(int page)
+        {
+            Logger.LogDebug("Iniciando paginacion inscripciones");
+            var queryable = DbContext.Inscripcion.AsQueryable();
+            var paginacion = new HttpResponsePaginacion<Inscripcion>(queryable, page);
+            if(paginacion.Content == null && paginacion.Content.Count == 0) 
+            {
+                Logger.LogWarning("No existen registros para paginar");
+                return NoContent();
+            }
+            List<InscripcionListDTO> inscripcion = Mapper.Map<List<InscripcionListDTO>>(paginacion.Content);
+            Logger.LogInformation("Finalizando proceso de paginacion alumnos");
+            return Ok(inscripcion);            
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Inscripcion>> Delete(string id)
+        {
+            Logger.LogDebug("Iniciando proceso de eliminación");
+            Inscripcion inscripcion = await DbContext.Inscripcion.FirstOrDefaultAsync(i => i.InscripcionId == id);
+            if(inscripcion == null)
+            {
+                Logger.LogWarning($"No se encontro ninguna inscripción con el id: {id}");
+                return NotFound();
+            }
+            else
+            {
+                DbContext.Inscripcion.Remove(inscripcion);
+                await DbContext.SaveChangesAsync();
+                Logger.LogInformation($"Se ha eliminado correctamente la inscripción con el id: {id}");
+                return inscripcion;
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> Put(string id, [FromBody] Inscripcion value)
+        {
+            Logger.LogDebug($"Iniciando el proceso de actualización de la inscripción con el id: {id}");
+            Inscripcion inscripcion = await DbContext.Inscripcion.FirstOrDefaultAsync(i => i.InscripcionId == id);
+            if(inscripcion == null)
+            {
+                Logger.LogWarning($"No se encontro ninguna inscripción con el id {id}");
+                return NotFound();
+            }
+            else
+            {
+                inscripcion.Carne = value.Carne;
+                inscripcion.CarreraId = value.CarreraId;
+                inscripcion.JornadaId = value.JornadaId;
+                inscripcion.Ciclo = value.Ciclo;
+                inscripcion.FechaInscripcion = value.FechaInscripcion;
+                DbContext.Entry(inscripcion).State = EntityState.Modified;
+                await DbContext.SaveChangesAsync();
+                Logger.LogInformation("Los datos han sido actualizados correctamente");
+                return NoContent();
+            }
         }
     }
 }
